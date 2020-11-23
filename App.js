@@ -1,31 +1,9 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 import {RNCamera} from 'react-native-camera';
 import axios from 'axios';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-} from 'react-native';
+import React, {useState} from 'react';
+import {TouchableOpacity, View} from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 import styled from 'styled-components';
 
 const Button = styled.View`
@@ -35,10 +13,22 @@ const Button = styled.View`
   background-color: pink;
 `;
 
+const StyledView = styled.View`
+  border: 1px red solid;
+  position: absolute;
+  z-index: 99;
+  width: ${(props) => `${props.w}px`};
+  height: ${(props) => `${props.h}px`};
+  top: ${(props) => `${props.y}px`};
+  left: ${(props) => `${props.x}px`};
+`;
+
 const App: () => React$Node = () => {
   const cameraRef = React.useRef(null);
+  const [chars, setChars] = useState(['1 1 1 1']);
   const onClick = () => {
-    setInterval(takePhoto, 1000);
+    //const interval = setInterval(takePhoto, 1000);
+    takePhoto();
   };
   const takePhoto = async () => {
     if (cameraRef) {
@@ -55,69 +45,44 @@ const App: () => React$Node = () => {
 
       await axios
         .post('http://10.0.2.2:3001/upload', {img: base64})
-        .then((res) => {
-          console.log(res);
-          console.log('asd1');
+        .then(async (res) => {
+          await setChars(res.data);
         })
         .catch((err) => {
           console.log(err);
-          console.log('asd2');
         });
-      console.log('asd3');
     }
   };
   return (
     <>
       <RNCamera
         ref={cameraRef}
-        style={{width: 420, height: 420}}
+        // eslint-disable-next-line react-native/no-inline-styles
+        style={{
+          width: 420,
+          height: 420,
+        }}
         type={RNCamera.Constants.Type.back}
         captureAudio={false}
       />
+      {chars.map &&
+        chars.map((item, index) => {
+          const arr = item.split(' ');
+          return (
+            <StyledView
+              x={(arr[0] / 960.0) * 420}
+              y={(arr[1] / 1280.0) * 400}
+              w={(arr[2] / 960.0) * 420}
+              h={(arr[3] / 1280.0) * 600}
+              key={index}
+            />
+          );
+        })}
       <TouchableOpacity onPress={onClick}>
         <Button />
       </TouchableOpacity>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
 
 export default App;
