@@ -13,7 +13,7 @@ const options = {
 
 const app = express();
 
-app.use(bodyParser.json({limit: 5000000}));
+app.use(bodyParser.json({limit: 10000000}));
 app.use(cors());
 
 app.get('/data', (req, res) => {
@@ -22,7 +22,7 @@ app.get('/data', (req, res) => {
 
 app.post('/upload', (req, res) => {
   fs.writeFile(
-    './image/1.jpg',
+    '../image/1.jpg',
     Buffer.from(req.body.img, 'base64'),
     function (err) {
       console.log(err);
